@@ -188,7 +188,15 @@
 		const q = highlightQuery.trim().toLowerCase();
 		const outColor = series(0, dark);
 		const inColor = series(1, dark);
-		const drawArrows = showArrows && simLinks.length < 3000 && k > 0.6;
+		const ink = dark ? '#ffffff' : '#000000';
+		const lineColor = withAlpha(ink, focus ? 0.05 : 0.14);
+		// Arrowheads are drawn much darker than the hairline edges, otherwise they vanish into them.
+		const arrowColor = withAlpha(ink, 0.55);
+		// ~7px on screen when zoomed in; zoomed out, capped at 12 graph units so an overview of
+		// thousands of edges does not fill up with full-size heads piling onto the hubs.
+		const arrowSize = Math.min(Math.max(7 / k, 2.5), 12);
+		// Thousands of heads are cheap on a settled graph but not at 60fps while the layout runs.
+		const drawArrows = showArrows && !(running && simLinks.length > 3000);
 
 		// edges
 		ctx.lineWidth = 1 / k;
@@ -196,15 +204,19 @@
 			const s = l.source as SimNode;
 			const t = l.target as SimNode;
 			if (s.x === undefined || t.x === undefined) continue;
-			let color = withAlpha(dark ? '#ffffff' : '#000000', focus ? 0.05 : 0.14);
+			let color = lineColor;
+			let head = arrowColor;
 			let lw = 1 / k;
+			let onFocus = false;
 			if (focus) {
 				if (s.id === focus) {
-					color = outColor;
+					color = head = outColor;
 					lw = 1.5 / k;
+					onFocus = true;
 				} else if (t.id === focus) {
-					color = inColor;
+					color = head = inColor;
 					lw = 1.5 / k;
+					onFocus = true;
 				}
 			}
 			ctx.strokeStyle = color;
@@ -215,20 +227,24 @@
 			ctx.moveTo(s.x!, s.y!);
 			ctx.lineTo(t.x!, t.y!);
 			ctx.stroke();
-			if (drawArrows && (!focus || s.id === focus || t.id === focus)) {
+			if (drawArrows && (!focus || onFocus)) {
 				const dx = t.x! - s.x!;
 				const dy = t.y! - s.y!;
 				const len = Math.hypot(dx, dy) || 1;
+				// Shrink the head to fit between dots that are close together; drop it only when it
+				// would be too small to see.
+				const size = Math.min(arrowSize, (len - s.r - t.r) * 0.6);
+				if (size * k < 1.5) continue;
 				const ux = dx / len;
 				const uy = dy / len;
-				const ax = t.x! - ux * (t.r + 1.5);
-				const ay = t.y! - uy * (t.r + 1.5);
-				const size = Math.max(3, 5 / k);
-				ctx.fillStyle = color;
+				// Tip sits just outside the target dot's outline ring.
+				const ax = t.x! - ux * (t.r + 1 / k);
+				const ay = t.y! - uy * (t.r + 1 / k);
+				ctx.fillStyle = head;
 				ctx.beginPath();
 				ctx.moveTo(ax, ay);
-				ctx.lineTo(ax - ux * size - uy * size * 0.5, ay - uy * size + ux * size * 0.5);
-				ctx.lineTo(ax - ux * size + uy * size * 0.5, ay - uy * size - ux * size * 0.5);
+				ctx.lineTo(ax - ux * size - uy * size * 0.45, ay - uy * size + ux * size * 0.45);
+				ctx.lineTo(ax - ux * size + uy * size * 0.45, ay - uy * size - ux * size * 0.45);
 				ctx.closePath();
 				ctx.fill();
 			}
@@ -493,6 +509,12 @@
 		onclick={onClick}
 		aria-label="Dependency graph of project files"
 	></canvas>
+	<button class="fit-btn" type="button" onclick={fit} title="Fit graph to view" aria-label="Fit graph to view">
+		<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+			<path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4" />
+			<circle cx="8" cy="8" r="2" />
+		</svg>
+	</button>
 	{#if hovered && tooltip}
 		<div
 			class="tooltip"
@@ -530,6 +552,31 @@
 		display: block;
 		cursor: grab;
 		touch-action: none;
+	}
+	.fit-btn {
+		position: absolute;
+		top: 10px;
+		right: 10px;
+		width: 30px;
+		height: 30px;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		padding: 0;
+		border-radius: var(--radius-sm);
+		border: 1px solid var(--border-strong);
+		background: var(--surface);
+		color: var(--text-2);
+		box-shadow: var(--shadow);
+		z-index: 1;
+	}
+	.fit-btn:hover {
+		background: var(--surface-2);
+		color: var(--text);
+	}
+	.fit-btn:focus-visible {
+		outline: 2px solid var(--accent-soft);
+		border-color: var(--accent);
 	}
 	.tooltip {
 		position: absolute;

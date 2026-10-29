@@ -217,7 +217,7 @@
 		</aside>
 	</section>
 
-	<section class="grid grid-3">
+	<section class="stack details">
 		<div class="card">
 			<div class="card-head"><h2>Circular dependencies</h2><p>{a.graph.cycles.length} group{a.graph.cycles.length === 1 ? '' : 's'}</p></div>
 			{#if a.graph.cycles.length}
@@ -349,14 +349,24 @@
 	.list.compact li {
 		padding: 3px 0;
 	}
+	/* Full-width cards: keep each subtitle next to its title rather than at the far edge. */
+	.details .card-head {
+		justify-content: flex-start;
+	}
+	/* Long path lists flow into as many columns as the width allows. */
 	.scroll-list {
 		max-height: 260px;
 		overflow: auto;
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(min(380px, 100%), 1fr));
+		column-gap: 28px;
+		align-content: start;
 	}
 	.cycles {
-		display: flex;
-		flex-direction: column;
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr));
 		gap: 10px;
+		align-items: start;
 		max-height: 420px;
 		overflow: auto;
 		margin-top: 8px;
