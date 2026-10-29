@@ -1,0 +1,46 @@
+{
+	"name": "code-analyzer",
+	"private": true,
+	"version": "0.0.1",
+	"type": "module",
+	"scripts": {
+		"dev": "vite dev",
+		"build": "vite build",
+		"preview": "vite preview",
+		"prepare": "svelte-kit sync || echo ''",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
+	},
+	"devDependencies": {
+		"@sveltejs/adapter-node": "^6.0.0",
+		"@sveltejs/kit": "^3.0.0",
+		"@sveltejs/vite-plugin-svelte": "^7.2.0",
+		"@types/d3-drag": "^3.0.7",
+		"@types/d3-force": "^3.0.10",
+		"@types/d3-hierarchy": "^3.1.7",
+		"@types/d3-selection": "^3.0.12",
+		"@types/d3-zoom": "^3.0.9",
+		"@types/node": "^26.6.6",
+		"svelte": "^5.57.1",
+		"svelte-check": "^4.6.0",
+		"typescript": "^6.0.3",
+		"vite": "^8.3.0"
+	},
+	"imports": {
+		"#lib": "./src/lib/index.js",
+		"#lib/*": "./src/lib/*"
+	},
+	"dependencies": {
+		"chart.js": "^4.6.1",
+		"d3-drag": "^3.0.0",
+		"d3-force": "^3.0.0",
+		"d3-hierarchy": "^3.1.2",
+		"d3-selection": "^3.0.0",
+		"d3-zoom": "^3.0.0",
+		"ignore": "^7.0.14",
+		"jsonc-parser": "^3.3.1",
+		"tree-sitter": "^0.21.1",
+		"tree-sitter-javascript": "^0.23.1",
+		"tree-sitter-typescript": "^0.23.2"
+	}
+}
