@@ -168,80 +168,92 @@
 		</div>
 	</section>
 
-	<section class="grid grid-3">
+	<section class="stack">
 		<div class="card">
 			<div class="card-head"><h2>Project</h2>{#if a.project.license}<p>{a.project.license}</p>{/if}</div>
 			{#if a.project.description}<p class="text-2 desc">{a.project.description}</p>{/if}
-			<dl class="facts">
-				<dt>Package manager</dt><dd>{a.project.packageManager}</dd>
-				<dt>Module type</dt><dd>{a.project.moduleType ?? '–'}</dd>
-				{#if a.project.nodeEngine}<dt>Node</dt><dd class="mono">{a.project.nodeEngine}</dd>{/if}
-				<dt>Dependencies</dt>
-				<dd>
-					{a.project.dependencies.filter((d) => d.scope === 'dependencies').length} runtime ·
-					{a.project.dependencies.filter((d) => d.scope === 'devDependencies').length} dev
-				</dd>
-				{#if a.project.tsconfig}
-					<dt>TypeScript</dt>
-					<dd>
-						strict {a.project.tsconfig.strict === null ? 'unset' : a.project.tsconfig.strict ? 'on' : 'off'}{a.project.tsconfig.target ? ` · ${a.project.tsconfig.target}` : ''}{a.project.tsconfig.hasPaths ? ' · path aliases' : ''}
-					</dd>
-				{/if}
-			</dl>
-			{#if frameworksByCategory.length}
-				<h3 class="sub">Stack</h3>
-				<div class="row small">
-					{#each frameworksByCategory as fw (fw.name)}
-						<span class="badge" title={fw.category}>{fw.name} <span class="muted">{fw.version.replace(/^[\^~]/, '')}</span></span>
-					{/each}
+			<div class="cols">
+				<div>
+					<dl class="facts">
+						<dt>Package manager</dt><dd>{a.project.packageManager}</dd>
+						<dt>Module type</dt><dd>{a.project.moduleType ?? '–'}</dd>
+						{#if a.project.nodeEngine}<dt>Node</dt><dd class="mono">{a.project.nodeEngine}</dd>{/if}
+						<dt>Dependencies</dt>
+						<dd>
+							{a.project.dependencies.filter((d) => d.scope === 'dependencies').length} runtime ·
+							{a.project.dependencies.filter((d) => d.scope === 'devDependencies').length} dev
+						</dd>
+						{#if a.project.tsconfig}
+							<dt>TypeScript</dt>
+							<dd>
+								strict {a.project.tsconfig.strict === null ? 'unset' : a.project.tsconfig.strict ? 'on' : 'off'}{a.project.tsconfig.target ? ` · ${a.project.tsconfig.target}` : ''}{a.project.tsconfig.hasPaths ? ' · path aliases' : ''}
+							</dd>
+						{/if}
+					</dl>
+					{#if frameworksByCategory.length}
+						<h3 class="sub">Stack</h3>
+						<div class="row small">
+							{#each frameworksByCategory as fw (fw.name)}
+								<span class="badge" title={fw.category}>{fw.name} <span class="muted">{fw.version.replace(/^[\^~]/, '')}</span></span>
+							{/each}
+						</div>
+					{/if}
 				</div>
-			{/if}
-			{#if scriptEntries.length}
-				<h3 class="sub">Scripts</h3>
-				<ul class="list scripts">
-					{#each showAllScripts ? scriptEntries : scriptEntries.slice(0, 6) as [name, cmd] (name)}
-						<li><span class="mono">{name}</span><span class="mono muted cmd" title={cmd}>{cmd}</span></li>
-					{/each}
-				</ul>
-				{#if scriptEntries.length > 6}
-					<button class="link-btn" type="button" onclick={() => (showAllScripts = !showAllScripts)}>
-						{showAllScripts ? 'Show fewer' : `Show all ${scriptEntries.length} scripts`}
-					</button>
-				{/if}
-			{/if}
-			{#if a.project.configFiles.length}
-				<h3 class="sub">Config & meta files</h3>
-				<div class="row small">
-					{#each a.project.configFiles as f (f)}
-						<span class="badge mono">{f}</span>
-					{/each}
+				<div>
+					{#if scriptEntries.length}
+						<h3 class="sub">Scripts</h3>
+						<ul class="list scripts">
+							{#each showAllScripts ? scriptEntries : scriptEntries.slice(0, 6) as [name, cmd] (name)}
+								<li><span class="mono">{name}</span><span class="mono muted cmd" title={cmd}>{cmd}</span></li>
+							{/each}
+						</ul>
+						{#if scriptEntries.length > 6}
+							<button class="link-btn" type="button" onclick={() => (showAllScripts = !showAllScripts)}>
+								{showAllScripts ? 'Show fewer' : `Show all ${scriptEntries.length} scripts`}
+							</button>
+						{/if}
+					{/if}
+					{#if a.project.configFiles.length}
+						<h3 class="sub">Config & meta files</h3>
+						<div class="row small">
+							{#each a.project.configFiles as f (f)}
+								<span class="badge mono">{f}</span>
+							{/each}
+						</div>
+					{/if}
 				</div>
-			{/if}
+			</div>
 		</div>
 
 		<div class="card">
 			<div class="card-head"><h2>Structure</h2><p><a href={reportHref('graph', a.path)}>open import graph →</a></p></div>
-			<h3 class="sub">Most imported files</h3>
-			{#if hubs.length}
-				<ul class="list">
-					{#each hubs as h (h.path)}
-						<li><a class="path" href={reportHref('graph', a.path, { node: h.path })} title={h.path}>{shortPath(h.path, 44)}</a><span class="num muted">{h.inDegree}</span></li>
-					{/each}
-				</ul>
-			{:else}
-				<p class="muted small">No internal imports found.</p>
-			{/if}
-			<h3 class="sub">Entry points <span class="muted">(import others, imported by none)</span></h3>
-			{#if entries.length}
-				<ul class="list">
-					{#each entries as e (e)}
-						<li><a class="path" href={reportHref('graph', a.path, { node: e })} title={e}>{shortPath(e, 48)}</a></li>
-					{/each}
-				</ul>
-			{:else}
-				<p class="muted small">None.</p>
-			{/if}
-			<dl class="facts top">
+			<div class="cols">
+				<div>
+					<h3 class="sub">Most imported files</h3>
+					{#if hubs.length}
+						<ul class="list">
+							{#each hubs as h (h.path)}
+								<li><a class="path" href={reportHref('graph', a.path, { node: h.path })} title={h.path}>{shortPath(h.path, 72)}</a><span class="num muted">{h.inDegree}</span></li>
+							{/each}
+						</ul>
+					{:else}
+						<p class="muted small">No internal imports found.</p>
+					{/if}
+				</div>
+				<div>
+					<h3 class="sub">Entry points <span class="muted">(import others, imported by none)</span></h3>
+					{#if entries.length}
+						<ul class="list">
+							{#each entries as e (e)}
+								<li><a class="path" href={reportHref('graph', a.path, { node: e })} title={e}>{shortPath(e, 72)}</a></li>
+							{/each}
+						</ul>
+					{:else}
+						<p class="muted small">None.</p>
+					{/if}
+				</div>
+			</div>
+			<dl class="facts strip">
 				<dt>Circular dependencies</dt><dd>{a.graph.cycles.length}</dd>
 				<dt>Orphan files</dt><dd>{a.graph.orphans.length} <span class="muted">(no imports either way)</span></dd>
 				<dt>External packages</dt><dd>{a.externals.filter((e) => !e.builtin && !e.virtual).length}</dd>
@@ -250,16 +262,22 @@
 
 		<div class="card">
 			<div class="card-head"><h2>Largest files</h2><p><a href={reportHref('files', a.path)}>all files →</a></p></div>
-			<ul class="list">
-				{#each largest as f (f.path)}
-					<li>
-						<a class="path" href={reportHref('files', a.path, { q: f.path })} title={f.path}>{shortPath(f.path, 44)}</a>
-						<span class="num muted">{fmt(f.loc)}</span>
-					</li>
-				{/each}
-			</ul>
-			<h3 class="sub">Function complexity</h3>
-			<Chart type="bar" data={complexityData} height={170} title="Function complexity distribution" />
+			<div class="cols">
+				<div>
+					<ul class="list">
+						{#each largest as f (f.path)}
+							<li>
+								<a class="path" href={reportHref('files', a.path, { q: f.path })} title={f.path}>{shortPath(f.path, 72)}</a>
+								<span class="num muted">{fmt(f.loc)}</span>
+							</li>
+						{/each}
+					</ul>
+				</div>
+				<div>
+					<h3 class="sub">Function complexity</h3>
+					<Chart type="bar" data={complexityData} height={220} title="Function complexity distribution" />
+				</div>
+			</div>
 		</div>
 	</section>
 
@@ -292,8 +310,29 @@
 		margin: 0;
 		font-size: 13px;
 	}
-	.facts.top {
-		margin-top: 12px;
+	/* Full-width cards: split each body into side-by-side columns while the width allows it. */
+	.cols {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(min(380px, 100%), 1fr));
+		gap: 0 32px;
+		align-items: start;
+	}
+	.cols > div {
+		min-width: 0;
+	}
+	.cols > div > .sub:first-child {
+		margin-top: 0;
+	}
+	.facts.strip {
+		grid-template-columns: repeat(3, auto 1fr);
+		margin-top: 14px;
+		padding-top: 12px;
+		border-top: 1px solid var(--grid);
+	}
+	@media (max-width: 900px) {
+		.facts.strip {
+			grid-template-columns: auto 1fr;
+		}
 	}
 	.facts dt {
 		color: var(--muted);
